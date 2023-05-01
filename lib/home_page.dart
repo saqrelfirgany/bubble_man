@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:bubble_man/ball.dart';
 import 'package:bubble_man/button.dart';
 import 'package:bubble_man/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'missile.dart';
+
+enum Direction { left, right }
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,6 +27,33 @@ class _HomePageState extends State<HomePage> {
   final double missileY = 1;
   double missileHeight = 10;
   bool midShot = false;
+
+  /// ball variables
+  double ballX = 0.5;
+  double ballY = 0;
+  var ballDirection = Direction.left;
+  var ballIncrement = 0.03;
+
+
+
+  void startGame() {
+    Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (ballX - ballIncrement < -1) {
+        ballDirection = Direction.right;
+      } else if (ballX + ballIncrement > 1) {
+        ballDirection = Direction.left;
+      }
+      if (ballDirection == Direction.left) {
+        setState(() {
+          ballX -= ballIncrement;
+        });
+      } else if (ballDirection == Direction.right) {
+        setState(() {
+          ballX += ballIncrement;
+        });
+      }
+    });
+  }
 
   void moveLeft() {
     if (playerX - 0.1 < -1) return;
@@ -98,6 +128,9 @@ class _HomePageState extends State<HomePage> {
               child: Center(
                 child: Stack(
                   children: [
+                    /// Ball
+                    AppBall(ballX: ballX, ballY: ballY),
+
                     ///
                     /// Missile
                     ///
@@ -118,6 +151,10 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  AppButton(
+                    iconData: Icons.play_arrow,
+                    press: startGame,
+                  ),
                   AppButton(
                     iconData: Icons.arrow_back,
                     press: moveLeft,
